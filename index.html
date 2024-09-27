@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2210757495430525"
+     crossorigin="anonymous"></script>
+    <title>Removedor de Fundo de Imagem</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .btn {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            background-color: #555;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #777;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            max-width: 90%;
+            border: 2px solid #fff;
+        }
+
+        #download {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Removedor de Fundo de Imagem</h1>
+        <input type="file" id="upload" class="btn" accept="image/*">
+        <button id="remove-bg" class="btn">Remover Fundo</button>
+        <button id="download" class="btn">Baixar PNG</button>
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        const uploadInput = document.getElementById('upload');
+        const removeBgButton = document.getElementById('remove-bg');
+        const downloadButton = document.getElementById('download');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let image = new Image();
+
+        // Carrega a imagem no canvas
+        uploadInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image.onload = () => {
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(image, 0, 0);
+                };
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            downloadButton.style.display = 'none';
+        });
+
+        // Remove o fundo da imagem (simulação com transparência)
+        removeBgButton.addEventListener('click', function() {
+            // Simulando a remoção de fundo ao definir pixels brancos como transparentes
+            ctx.drawImage(image, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            // Percorre os pixels e define a opacidade de pixels brancos para 0
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i] > 200 && data[i + 1] > 200 && data[i + 2] > 200) {
+                    data[i + 3] = 0; // Define a opacidade como 0 (transparente)
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            downloadButton.style.display = 'block';
+        });
+
+        // Baixa a imagem como PNG
+        downloadButton.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'imagem_sem_fundo.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
